@@ -1,6 +1,16 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+// Database is loaded asynchronously with sql.js
+let db;
+require('./backend/db.js').then(database => {
+    db = database;
+    console.log('✅ Database ready in main.js');
+}).catch(error => {
+    console.error('❌ Failed to load database in main.js:', error);
+});
+
+// creates the window for UI
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
@@ -11,6 +21,7 @@ function createWindow() {
     }
   });
 
+  // loads the file "index.html"
   win.loadFile('frontend/index.html');
 }
 
