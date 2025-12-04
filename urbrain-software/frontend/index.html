@@ -63,6 +63,21 @@
         <!-- MAIN CONTENT AREA -->
         <main class="main-content">
             
+            <!-- TOP TOOLBAR (Day 15 - Search) -->
+            <div class="toolbar">
+                <!-- SEARCH BOX -->
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search notes, folders, and content..."
+                        autocomplete="off"
+                    >
+                    <button class="search-clear-btn" id="searchClearBtn" style="display: none;" title="Clear search">×</button>
+                </div>
+            </div>
+
             <!-- TAB BAR (AT THE TOP) -->
             <div class="tab-bar">
                 <!-- NAVIGATION BUTTONS (Day 5) -->
@@ -184,6 +199,140 @@
             <div class="modal-footer">
                 <button class="modal-btn modal-btn-cancel" id="noteModalCancelBtn">Cancel</button>
                 <button class="modal-btn modal-btn-create" id="noteModalCreateBtn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE STICKY NOTE MODAL (NEW - Day 16) -->
+    <div class="modal-overlay" id="createStickyModal" style="display: none;">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h2>Create Sticky Note</h2>
+                <button class="modal-close-btn" id="stickyModalCloseBtn">×</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <label for="stickyTitleInput">Title (optional):</label>
+                <input 
+                    type="text" 
+                    id="stickyTitleInput" 
+                    placeholder="Quick reminder..."
+                    maxlength="50"
+                >
+                
+                <label for="stickyContentInput" style="margin-top: 15px;">Content:</label>
+                <textarea 
+                    id="stickyContentInput" 
+                    placeholder="Type your note here..."
+                    rows="6"
+                    maxlength="300"
+                    style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: 'Segoe UI', sans-serif; resize: vertical;"
+                ></textarea>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-cancel" id="stickyModalCancelBtn">Cancel</button>
+                <button class="modal-btn modal-btn-create" id="stickyModalCreateBtn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL (NEW - Day 17) -->
+    <div class="modal-overlay" id="settingsModal" style="display: none;">
+        <div class="modal-content modal-settings">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="modal-close-btn" id="settingsModalCloseBtn">×</button>
+            </div>
+            
+            <!-- Settings Tabs -->
+            <div class="settings-tabs">
+                <button class="settings-tab active" data-tab="general">General</button>
+                <button class="settings-tab" data-tab="appearance">Appearance</button>
+                <button class="settings-tab" data-tab="about">About</button>
+            </div>
+            
+            <!-- Settings Content -->
+            <div class="settings-content">
+                
+                <!-- GENERAL TAB -->
+                <div class="settings-tab-content active" id="generalTab">
+                    <h3>General Settings</h3>
+                    
+                    <div class="settings-group">
+                        <label for="appNameSetting">Application Name:</label>
+                        <input 
+                            type="text" 
+                            id="appNameSetting" 
+                            value="URBRAIN"
+                            maxlength="20"
+                        >
+                        <p class="settings-hint">Customize the name displayed in the sidebar</p>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label>
+                            <input type="checkbox" id="confirmDeleteSetting" checked>
+                            Confirm before deleting items
+                        </label>
+                        <p class="settings-hint">Show confirmation dialog when deleting folders, notes, or sticky notes</p>
+                    </div>
+                </div>
+                
+                <!-- APPEARANCE TAB -->
+                <div class="settings-tab-content" id="appearanceTab">
+                    <h3>Appearance Settings</h3>
+                    
+                    <div class="settings-group">
+                        <label for="fontSizeSetting">Font Size:</label>
+                        <select id="fontSizeSetting">
+                            <option value="small">Small (12px)</option>
+                            <option value="medium" selected>Medium (14px)</option>
+                            <option value="large">Large (16px)</option>
+                        </select>
+                        <p class="settings-hint">Adjust text size throughout the app</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <label>
+                            <input type="checkbox" id="animationsSetting" checked>
+                            Enable animations
+                        </label>
+                        <p class="settings-hint">Show smooth transitions and hover effects</p>
+                    </div>
+                </div>
+                
+                <!-- ABOUT TAB -->
+                <div class="settings-tab-content" id="aboutTab">
+                    <div class="about-section">
+                        <div class="about-logo">🧠</div>
+                        <h2 class="about-title">URBRAIN</h2>
+                        <span class="about-version">Version 1.0.0</span>
+                        
+                        <p class="about-info">
+                            A powerful desktop note-taking application built with Electron, designed to help you organize your thoughts, ideas, and projects efficiently.
+                        </p>
+                        
+                        <p class="about-info">
+                            <strong>Features:</strong><br>
+                            📁 Hierarchical folder organization<br>
+                            📝 Rich note editing<br>
+                            📌 Quick sticky notes<br>
+                            🔍 Full-text search
+                        </p>
+                        
+                        <div class="about-credits">
+                            <p><strong>Project:</strong> URBRAIN Development Timeline</p>
+                            <p><strong>Built with:</strong> Electron, JavaScript, localStorage</p>
+                            <p><strong>Development:</strong> 21-Day Learning Project</p>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>

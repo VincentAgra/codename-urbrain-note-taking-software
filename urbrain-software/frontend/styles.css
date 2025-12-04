@@ -235,6 +235,29 @@ body {
     color: #95a5a6;
 }
 
+/* SEARCH CLEAR BUTTON (Day 15) */
+.search-clear-btn {
+    background: none;
+    border: none;
+    color: #95a5a6;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+    margin-left: 5px;
+}
+
+.search-clear-btn:hover {
+    background: #e74c3c;
+    color: white;
+}
+
 /* TOOLBAR ICON BUTTONS */
 .icon-btn {
     background: #ecf0f1;
@@ -1166,4 +1189,649 @@ body {
     font-size: 14px;
     color: #bdc3c7;
     font-style: italic;
+}
+
+/* ============================================
+   NOTE EDIT MODE STYLES (DAY 13)
+   ============================================ */
+
+/* Edit textarea */
+.note-edit-textarea {
+    width: 100%;
+    min-height: 400px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #2c3e50;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    resize: vertical;
+    transition: all 0.2s;
+}
+
+.note-edit-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.note-edit-textarea::placeholder {
+    color: #bdc3c7;
+}
+
+/* Success button (green Save button) */
+.note-action-btn-success {
+    background: #27ae60;
+}
+
+.note-action-btn-success:hover:not(:disabled) {
+    background: #229954;
+}
+
+/* ============================================
+   STICKY NOTE CARDS (DAY 16)
+   ============================================ */
+
+/* Sticky note specific styling */
+.sticky-card {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: none;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.sticky-card:hover {
+    transform: translateY(-4px) rotate(1deg);
+    box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+}
+
+/* Corner fold effect */
+.sticky-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 30px 30px 0;
+    border-color: transparent #f59e0b transparent transparent;
+    opacity: 0.3;
+}
+
+/* Sticky note title styling */
+.sticky-card .card-title {
+    color: #92400e;
+    font-weight: 700;
+}
+
+/* Sticky note content preview */
+.sticky-content {
+    font-size: 13px;
+    color: #78350f;
+    line-height: 1.5;
+    margin: 8px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 60px;
+    white-space: pre-wrap;
+}
+
+/* Sticky note metadata */
+.sticky-card .card-meta {
+    color: #a16207;
+    font-weight: 600;
+}
+
+/* Delete button for sticky notes */
+.sticky-card .card-delete-btn {
+    background: rgba(220, 38, 38, 0.9);
+}
+
+.sticky-card:hover .card-delete-btn {
+    opacity: 1;
+}
+
+/* ============================================
+   SETTINGS MODAL STYLES (DAY 17)
+   ============================================ */
+
+/* Settings Modal - Wider than standard modals */
+.modal-settings {
+    max-width: 700px;
+    max-height: 85vh;
+}
+
+/* Settings Tabs Navigation */
+.settings-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.settings-tab {
+    flex: 1;
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #7f8c8d;
+    transition: all 0.2s;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.settings-tab:hover {
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
+.settings-tab.active {
+    color: #3498db;
+    background: white;
+}
+
+.settings-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #3498db;
+}
+
+/* Settings Content Area */
+.settings-content {
+    padding: 30px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.settings-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.settings-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.settings-content::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+}
+
+.settings-content::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+/* Tab Content Sections */
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+    animation: fadeInSettings 0.3s ease;
+}
+
+@keyframes fadeInSettings {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.settings-tab-content h3 {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+/* Settings Groups */
+.settings-group {
+    margin-bottom: 25px;
+}
+
+.settings-group > label {
+    display: block;
+    font-size: 14px;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Text Inputs and Selects */
+.settings-group input[type="text"],
+.settings-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #2c3e50;
+    transition: all 0.2s;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.settings-group input[type="text"]:focus,
+.settings-group select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Checkboxes */
+.settings-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #3498db;
+}
+
+.settings-group label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Settings Hints */
+.settings-hint {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 5px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* About Section Styling */
+.about-section {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.about-logo {
+    font-size: 64px;
+    margin-bottom: 15px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.about-title {
+    font-size: 32px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.about-version {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.about-info {
+    color: #7f8c8d;
+    line-height: 1.8;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.about-info strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.about-credits {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.about-credits p {
+    margin: 8px 0;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.about-credits strong {
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-settings {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .settings-tabs {
+        flex-direction: column;
+    }
+    
+    .settings-tab.active::after {
+        height: 0;
+        width: 3px;
+        left: 0;
+        top: 0;
+        bottom: 0;
+    }
+    
+    .settings-content {
+        padding: 20px;
+        max-height: 400px;
+    }
+}/* ============================================
+   SETTINGS MODAL STYLES (DAY 17)
+   ============================================ */
+
+/* Settings Modal - Wider than standard modals */
+.modal-settings {
+    max-width: 700px;
+    max-height: 85vh;
+}
+
+/* Settings Tabs Navigation */
+.settings-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.settings-tab {
+    flex: 1;
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #7f8c8d;
+    transition: all 0.2s;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.settings-tab:hover {
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
+.settings-tab.active {
+    color: #3498db;
+    background: white;
+}
+
+.settings-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #3498db;
+}
+
+/* Settings Content Area */
+.settings-content {
+    padding: 30px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.settings-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.settings-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.settings-content::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+}
+
+.settings-content::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+/* Tab Content Sections */
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+    animation: fadeInSettings 0.3s ease;
+}
+
+@keyframes fadeInSettings {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.settings-tab-content h3 {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+/* Settings Groups */
+.settings-group {
+    margin-bottom: 25px;
+}
+
+.settings-group > label {
+    display: block;
+    font-size: 14px;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Text Inputs and Selects */
+.settings-group input[type="text"],
+.settings-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #2c3e50;
+    transition: all 0.2s;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.settings-group input[type="text"]:focus,
+.settings-group select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Checkboxes */
+.settings-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #3498db;
+}
+
+.settings-group label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Settings Hints */
+.settings-hint {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 5px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* About Section Styling */
+.about-section {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.about-logo {
+    font-size: 64px;
+    margin-bottom: 15px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.about-title {
+    font-size: 32px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.about-version {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.about-info {
+    color: #7f8c8d;
+    line-height: 1.8;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.about-info strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.about-credits {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.about-credits p {
+    margin: 8px 0;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.about-credits strong {
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-settings {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .settings-tabs {
+        flex-direction: column;
+    }
+    
+    .settings-tab.active::after {
+        height: 0;
+        width: 3px;
+        left: 0;
+        top: 0;
+        bottom: 0;
+    }
+    
+    .settings-content {
+        padding: 20px;
+        max-height: 400px;
+    }
+}
+
+/* ============================================
+   FONT SIZE CLASSES (DAY 17)
+   ============================================ */
+
+body.font-small {
+    font-size: 12px;
+}
+
+body.font-medium {
+    font-size: 14px;
+}
+
+body.font-large {
+    font-size: 16px;
+}
+
+/* Disable animations class */
+body.no-animations * {
+    animation: none !important;
+    transition: none !important;
 }

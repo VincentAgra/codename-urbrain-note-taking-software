@@ -11,6 +11,8 @@ let folders = [];
 let notes = [];  // NEW - Day 11
 let stickyNotes = [];
 
+let currentSearchQuery = ''; // Search state (Day 15)
+
 // Tab system
 let tabs = [];
 let activeTabId = null;
@@ -28,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load data from localStorage
     loadData();
+
+    // Load settings (NEW - Day 17)
+    loadSettings();
     
     // Create initial Home tab
     createTab('home', 'Home', null);
@@ -423,6 +428,29 @@ function renderHomeView() {
             </div>
         </section>
         
+        ${currentSearchQuery.trim() !== '' ? `
+        <!-- DIVIDER LINE -->
+        <hr class="section-divider">
+        
+        <!-- SEARCH RESULTS - NOTES -->
+        <section class="content-section" id="notesSearchSection">
+            <div class="section-header">
+                <h2>Notes</h2>
+                <p id="notesSearchCount">0 notes</p>
+            </div>
+            
+            <div class="empty-message" id="notesSearchEmpty">
+                <div class="empty-icon">📝</div>
+                <h3>No matching notes</h3>
+                <p>No notes found matching your search</p>
+            </div>
+            
+            <div class="grid-container" id="notesSearchGrid" style="display: none;">
+                <!-- Note cards will be added here -->
+            </div>
+        </section>
+        ` : ''}
+        
         <!-- DIVIDER LINE -->
         <hr class="section-divider">
         
@@ -450,6 +478,11 @@ function renderHomeView() {
     renderFolders();
     renderStickyNotes();
     updateCounts();
+    
+    // Render search results for notes if searching (Step 2G)
+    if (currentSearchQuery.trim() !== '') {
+        renderNotesSearchResults();
+    }
 }
 
 /**
@@ -663,26 +696,214 @@ function renderNoteView(noteId) {
                     <span>Modified ${modifiedDate}</span>
                 </div>
             </div>
-            <div class="note-view-actions">
-                <button class="note-action-btn" id="editNoteBtn" title="Edit Note" disabled>
+            <div class="note-view-actions" id="noteViewActions">
+                <button class="note-action-btn" id="editNoteBtn" title="Edit Note">
                     <span>✏️</span> Edit
                 </button>
-                <button class="note-action-btn note-action-btn-danger" id="deleteNoteBtn" title="Delete Note" disabled>
+                <button class="note-action-btn note-action-btn-danger" id="deleteNoteBtn" title="Delete Note">
                     <span>🗑️</span> Delete
                 </button>
             </div>
         </div>
         
         <!-- NOTE CONTENT -->
-        <div class="note-view-content">
+        <div class="note-view-content" id="noteViewContent">
             ${note.content.trim() === '' 
-                ? '<div class="note-empty-content"><p>This note is empty.</p><p class="note-empty-hint">Editing coming in Day 13!</p></div>' 
+                ? '<div class="note-empty-content"><p>This note is empty.</p><p class="note-empty-hint">Click Edit to add content!</p></div>'
                 : `<div class="note-content-text">${escapeHtml(note.content)}</div>`
             }
         </div>
     `;
     
+    // Setup note view event listeners
+    setupNoteViewListeners(noteId);
+    
     console.log('Note view rendered:', note.title);
+}
+
+/**
+ * Setup event listeners for note view (NEW - DAY 13)
+ * @param {string} noteId - The note ID
+ */
+function setupNoteViewListeners(noteId) {
+    // Edit button
+    const editBtn = document.getElementById('editNoteBtn');
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            console.log('Edit button clicked for note:', noteId);
+            enterEditMode(noteId);
+        });
+    }
+    
+    // Delete button
+    const deleteBtn = document.getElementById('deleteNoteBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            console.log('Delete button clicked for note:', noteId);
+            handleDeleteNote(noteId);
+        });
+    }
+}
+
+/**
+ * Enter edit mode for a note (NEW - DAY 13)
+ * @param {string} noteId - The note ID to edit
+ */
+function enterEditMode(noteId) {
+    const note = getNoteById(noteId);
+    if (!note) {
+        console.error('Note not found:', noteId);
+        return;
+    }
+    
+    console.log('Entering edit mode for:', note.title);
+    
+    // Replace the action buttons with Save/Cancel
+    const actionsDiv = document.getElementById('noteViewActions');
+    if (actionsDiv) {
+        actionsDiv.innerHTML = `
+            <button class="note-action-btn note-action-btn-success" id="saveNoteBtn" title="Save Changes">
+                <span>💾</span> Save
+            </button>
+            <button class="note-action-btn" id="cancelEditBtn" title="Cancel Editing">
+                <span>✖️</span> Cancel
+            </button>
+        `;
+    }
+    
+    // Replace content area with textarea
+    const contentDiv = document.getElementById('noteViewContent');
+    if (contentDiv) {
+        contentDiv.innerHTML = `
+            <textarea class="note-edit-textarea" id="noteEditTextarea" placeholder="Write your note content here...">${escapeHtml(note.content)}</textarea>
+        `;
+        
+        // Focus the textarea
+        const textarea = document.getElementById('noteEditTextarea');
+        if (textarea) {
+            textarea.focus();
+            // Move cursor to end
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+        }
+    }
+    
+    // Setup Save button listener
+    const saveBtn = document.getElementById('saveNoteBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            saveNoteChanges(noteId);
+        });
+    }
+    
+    // Setup Cancel button listener
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            exitEditMode(noteId);
+        });
+    }
+    
+    // Setup keyboard shortcut: Ctrl+S to save
+    const textarea = document.getElementById('noteEditTextarea');
+    if (textarea) {
+        textarea.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveNoteChanges(noteId);
+            }
+        });
+    }
+    
+    console.log('Edit mode active');
+}
+
+/**
+ * Save note changes and exit edit mode (NEW - DAY 13)
+ * @param {string} noteId - The note ID to save
+ */
+function saveNoteChanges(noteId) {
+    const note = getNoteById(noteId);
+    if (!note) {
+        console.error('Note not found:', noteId);
+        return;
+    }
+    
+    // Get the new content from textarea
+    const textarea = document.getElementById('noteEditTextarea');
+    if (!textarea) {
+        console.error('Textarea not found');
+        return;
+    }
+    
+    const newContent = textarea.value;
+    
+    // Update the note
+    note.content = newContent;
+    note.modifiedAt = new Date().toISOString();
+    
+    // Save to localStorage
+    saveNotes();
+    
+    console.log('✅ Note saved:', note.title);
+    
+    // Exit edit mode and re-render
+    exitEditMode(noteId);
+}
+
+/**
+ * Exit edit mode without saving (NEW - DAY 13)
+ * @param {string} noteId - The note ID
+ */
+function exitEditMode(noteId) {
+    console.log('Exiting edit mode for note:', noteId);
+    
+    // Re-render the note view (which will show read-only mode)
+    renderNoteView(noteId);
+}
+
+/**
+ * Handle note deletion with confirmation (NEW - DAY 13)
+ * @param {string} noteId - The note ID to delete
+ */
+function handleDeleteNote(noteId) {
+    const note = getNoteById(noteId);
+    if (!note) {
+        console.error('Note not found:', noteId);
+        return;
+    }
+    
+    // Confirm deletion
+    const confirmMsg = `Delete note "${note.title}"?\n\nThis action cannot be undone!`;
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    
+    // Find the note index
+    const noteIndex = notes.findIndex(n => n.id === noteId);
+    if (noteIndex === -1) {
+        console.error('Note index not found');
+        return;
+    }
+    
+    // Remove the note
+    notes.splice(noteIndex, 1);
+    
+    // Save to localStorage
+    saveNotes();
+    
+    console.log('🗑️ Note deleted:', note.title);
+    
+    // Close the tab showing this note
+    const noteTab = tabs.find(t => t.type === 'note' && t.referenceId === noteId);
+    if (noteTab) {
+        closeTab(noteTab.id);
+    }
+    
+    // If we're still on a note view (shouldn't happen), go home
+    const activeTab = getActiveTab();
+    if (activeTab && activeTab.type === 'note') {
+        renderHomeView();
+    }
 }
 
 // ============================================
@@ -1104,6 +1325,340 @@ function openNoteInTab(noteId) {
 }
 
 // ============================================
+// STICKY NOTE FUNCTIONS (DAY 16)
+// ============================================
+
+/**
+ * Create a new sticky note
+ * @param {string} title - The sticky note title (optional)
+ * @param {string} content - The sticky note content
+ * @returns {object|null} The created sticky note object or null if failed
+ */
+function createStickyNote(title, content) {
+    try {
+        const now = new Date().toISOString();
+        
+        // Generate unique ID
+        const stickyId = 'sticky-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        
+        // Create sticky note object
+        const newSticky = {
+            id: stickyId,
+            title: title || 'Quick Note',  // Default title if empty
+            content: content,
+            createdAt: now,
+            modifiedAt: now
+        };
+        
+        // Add to stickyNotes array
+        stickyNotes.push(newSticky);
+        
+        // Save to localStorage
+        saveStickyNotes();
+        
+        console.log('✅ Sticky note created:', newSticky);
+        return newSticky;
+        
+    } catch (error) {
+        console.error('❌ Error creating sticky note:', error);
+        alert('Failed to create sticky note. Please try again.');
+        return null;
+    }
+}
+
+/**
+ * Create a sticky note card element
+ * @param {object} sticky - The sticky note object
+ * @returns {HTMLElement} The sticky card element
+ */
+function createStickyCard(sticky) {
+    const card = document.createElement('div');
+    card.className = 'card sticky-card';
+    card.dataset.stickyId = sticky.id;
+    
+    // Get content preview (first 100 characters)
+    const preview = sticky.content.trim().substring(0, 100);
+    const previewText = preview + (sticky.content.length > 100 ? '...' : '');
+    
+    card.innerHTML = `
+        <div class="card-icon">📌</div>
+        <div class="card-title">${escapeHtml(sticky.title)}</div>
+        <div class="sticky-content">${escapeHtml(previewText)}</div>
+        <div class="card-meta">Created ${formatDate(sticky.createdAt)}</div>
+        <button class="card-delete-btn" title="Delete sticky note">🗑️</button>
+    `;
+    
+    // Get delete button
+    const deleteBtn = card.querySelector('.card-delete-btn');
+    
+    // Click to open sticky in modal
+    card.addEventListener('click', (e) => {
+        // Don't open if clicking delete button
+        if (e.target === deleteBtn) {
+            return;
+        }
+        console.log('Sticky clicked:', sticky.title);
+        showViewStickyModal(sticky.id);
+    });
+    
+    // Delete button click handler
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Don't open sticky when clicking delete
+        handleDeleteSticky(sticky.id);
+    });
+    
+    return card;
+}
+
+/**
+ * Get sticky note by ID
+ * @param {string} stickyId - The sticky note ID
+ * @returns {object|null} The sticky note object or null
+ */
+function getStickyById(stickyId) {
+    return stickyNotes.find(s => s.id === stickyId) || null;
+}
+
+/**
+ * Handle sticky note deletion with confirmation
+ * @param {string} stickyId - The sticky note ID to delete
+ */
+function handleDeleteSticky(stickyId) {
+    const sticky = getStickyById(stickyId);
+    if (!sticky) {
+        console.error('Sticky note not found:', stickyId);
+        return;
+    }
+    
+    // Confirm deletion
+    const confirmMsg = `Delete sticky note "${sticky.title}"?\n\nThis action cannot be undone!`;
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    
+    // Find the sticky index
+    const stickyIndex = stickyNotes.findIndex(s => s.id === stickyId);
+    if (stickyIndex === -1) {
+        console.error('Sticky note index not found');
+        return;
+    }
+    
+    // Remove the sticky note
+    stickyNotes.splice(stickyIndex, 1);
+    
+    // Save to localStorage
+    saveStickyNotes();
+    
+    console.log('🗑️ Sticky note deleted:', sticky.title);
+    
+    // Re-render current view
+    renderCurrentView();
+}
+
+// ============================================
+// SETTINGS FUNCTIONS (DAY 17)
+// ============================================
+
+/**
+ * Default settings object
+ */
+const defaultSettings = {
+    appName: 'URBRAIN',
+    confirmDelete: true,
+    fontSize: 'medium',
+    animations: true
+};
+
+/**
+ * Current settings (loaded from localStorage or defaults)
+ */
+let currentSettings = { ...defaultSettings };
+
+/**
+ * Load settings from localStorage
+ */
+function loadSettings() {
+    const saved = localStorage.getItem('urbrain_settings');
+    if (saved) {
+        try {
+            currentSettings = { ...defaultSettings, ...JSON.parse(saved) };
+            console.log('Settings loaded:', currentSettings);
+        } catch (e) {
+            console.error('Error loading settings:', e);
+            currentSettings = { ...defaultSettings };
+        }
+    }
+    
+    // Apply settings to UI
+    applySettings();
+}
+
+/**
+ * Save settings to localStorage
+ */
+function saveSettings() {
+    try {
+        localStorage.setItem('urbrain_settings', JSON.stringify(currentSettings));
+        console.log('Settings saved:', currentSettings);
+    } catch (e) {
+        console.error('Error saving settings:', e);
+    }
+}
+
+/**
+ * Apply settings to the UI
+ */
+function applySettings() {
+    // Apply app name to sidebar
+    const sidebarHeader = document.querySelector('.sidebar-header h1');
+    if (sidebarHeader) {
+        sidebarHeader.textContent = currentSettings.appName;
+    }
+    
+    // Apply font size to body
+    document.body.classList.remove('font-small', 'font-medium', 'font-large');
+    document.body.classList.add(`font-${currentSettings.fontSize}`);
+    
+    // Apply animations setting
+    if (!currentSettings.animations) {
+        document.body.classList.add('no-animations');
+    } else {
+        document.body.classList.remove('no-animations');
+    }
+}
+
+/**
+ * Show the settings modal
+ */
+function showSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (!modal) return;
+    
+    // Load current settings into form
+    loadSettingsIntoForm();
+    
+    // Show modal
+    modal.style.display = 'flex';
+    console.log('Settings modal opened');
+}
+
+/**
+ * Hide the settings modal
+ */
+function hideSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        console.log('Settings modal closed');
+    }
+}
+
+/**
+ * Load current settings into the form inputs
+ */
+function loadSettingsIntoForm() {
+    // App name
+    const appNameInput = document.getElementById('appNameSetting');
+    if (appNameInput) {
+        appNameInput.value = currentSettings.appName;
+    }
+    
+    // Confirm delete
+    const confirmDeleteInput = document.getElementById('confirmDeleteSetting');
+    if (confirmDeleteInput) {
+        confirmDeleteInput.checked = currentSettings.confirmDelete;
+    }
+    
+    // Font size
+    const fontSizeInput = document.getElementById('fontSizeSetting');
+    if (fontSizeInput) {
+        fontSizeInput.value = currentSettings.fontSize;
+    }
+    
+    // Animations
+    const animationsInput = document.getElementById('animationsSetting');
+    if (animationsInput) {
+        animationsInput.checked = currentSettings.animations;
+    }
+}
+
+/**
+ * Save settings from form inputs
+ */
+function saveSettingsFromForm() {
+    // Get values from form
+    const appNameInput = document.getElementById('appNameSetting');
+    const confirmDeleteInput = document.getElementById('confirmDeleteSetting');
+    const fontSizeInput = document.getElementById('fontSizeSetting');
+    const animationsInput = document.getElementById('animationsSetting');
+    
+    // Update settings object
+    if (appNameInput) {
+        currentSettings.appName = appNameInput.value.trim() || 'URBRAIN';
+    }
+    if (confirmDeleteInput) {
+        currentSettings.confirmDelete = confirmDeleteInput.checked;
+    }
+    if (fontSizeInput) {
+        currentSettings.fontSize = fontSizeInput.value;
+    }
+    if (animationsInput) {
+        currentSettings.animations = animationsInput.checked;
+    }
+    
+    // Save to localStorage
+    saveSettings();
+    
+    // Apply settings immediately
+    applySettings();
+    
+    console.log('Settings saved and applied');
+}
+
+/**
+ * Switch settings tab
+ * @param {string} tabName - The tab to switch to ('general', 'appearance', 'about')
+ */
+function switchSettingsTab(tabName) {
+    // Remove active class from all tabs
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all tab contents
+    document.querySelectorAll('.settings-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab
+    const clickedTab = document.querySelector(`.settings-tab[data-tab="${tabName}"]`);
+    if (clickedTab) {
+        clickedTab.classList.add('active');
+    }
+    
+    // Show corresponding content
+    const tabContent = document.getElementById(tabName + 'Tab');
+    if (tabContent) {
+        tabContent.classList.add('active');
+    }
+    
+    console.log('Switched to settings tab:', tabName);
+}
+
+/**
+ * Reset settings to defaults
+ */
+function resetSettings() {
+    if (confirm('Reset all settings to defaults?\n\nThis cannot be undone.')) {
+        currentSettings = { ...defaultSettings };
+        saveSettings();
+        applySettings();
+        loadSettingsIntoForm();
+        console.log('Settings reset to defaults');
+    }
+}
+
+// ============================================
 // RENDERING FUNCTIONS
 // ============================================
 
@@ -1122,8 +1677,17 @@ function renderFolders() {
     // Clear existing folder cards
     foldersGrid.innerHTML = '';
     
-    // Only show root-level folders (parentId === null)
-    const rootFolders = folders.filter(f => f.parentId === null);
+    // Filter folders based on search query
+    let rootFolders;
+    
+    if (currentSearchQuery.trim() !== '') {
+        // Search mode - show matching folders (any level)
+        const searchResults = performSearch(currentSearchQuery);
+        rootFolders = searchResults.folders;
+    } else {
+        // Normal mode - only show root-level folders
+        rootFolders = folders.filter(f => f.parentId === null);
+    }
     
     if (rootFolders.length === 0) {
         // Show empty message, hide grid
@@ -1193,7 +1757,7 @@ function createFolderCard(folder) {
 }
 
 /**
- * Render sticky notes (placeholder for now)
+ * Render sticky notes
  */
 function renderStickyNotes() {
     const emptyMessage = document.getElementById('stickyEmptyMessage');
@@ -1203,13 +1767,21 @@ function renderStickyNotes() {
         return;
     }
     
+    // Clear existing sticky note cards
+    stickyGrid.innerHTML = '';
+    
     if (stickyNotes.length === 0) {
         emptyMessage.style.display = 'block';
         stickyGrid.style.display = 'none';
     } else {
         emptyMessage.style.display = 'none';
         stickyGrid.style.display = 'grid';
-        // TODO: Render sticky note cards (future implementation)
+        
+        // Create sticky note cards
+        stickyNotes.forEach(sticky => {
+            const card = createStickyCard(sticky);
+            stickyGrid.appendChild(card);
+        });
     }
 }
 
@@ -1228,6 +1800,47 @@ function updateCounts() {
     if (stickyCount) {
         const count = stickyNotes.length;
         stickyCount.textContent = `${count} sticky note${count !== 1 ? 's' : ''}`;
+    }
+}
+
+/**
+ * Render notes search results (DAY 15)
+ */
+function renderNotesSearchResults() {
+    const emptyMessage = document.getElementById('notesSearchEmpty');
+    const notesGrid = document.getElementById('notesSearchGrid');
+    const notesCount = document.getElementById('notesSearchCount');
+    
+    if (!emptyMessage || !notesGrid || !notesCount) {
+        console.error('Notes search elements not found');
+        return;
+    }
+    
+    // Clear existing note cards
+    notesGrid.innerHTML = '';
+    
+    // Get search results
+    const searchResults = performSearch(currentSearchQuery);
+    const matchingNotes = searchResults.notes;
+    
+    // Update count
+    const count = matchingNotes.length;
+    notesCount.textContent = `${count} note${count !== 1 ? 's' : ''}`;
+    
+    if (matchingNotes.length === 0) {
+        // Show empty message, hide grid
+        emptyMessage.style.display = 'block';
+        notesGrid.style.display = 'none';
+    } else {
+        // Hide empty message, show grid
+        emptyMessage.style.display = 'none';
+        notesGrid.style.display = 'grid';
+        
+        // Create note cards
+        matchingNotes.forEach(note => {
+            const card = createNoteCard(note);
+            notesGrid.appendChild(card);
+        });
     }
 }
 
@@ -1397,6 +2010,77 @@ function handleCreateNote() {
     }
 }
 
+/**
+ * Show the create sticky note modal (NEW - DAY 16)
+ */
+function showCreateStickyModal() {
+    const modal = document.getElementById('createStickyModal');
+    const titleInput = document.getElementById('stickyTitleInput');
+    const contentInput = document.getElementById('stickyContentInput');
+    
+    if (modal && titleInput && contentInput) {
+        modal.style.display = 'flex';
+        titleInput.value = '';
+        contentInput.value = '';
+        contentInput.focus(); // Focus on content (title is optional)
+        console.log('Create sticky modal opened');
+    }
+}
+
+/**
+ * Hide the create sticky note modal (NEW - DAY 16)
+ */
+function hideCreateStickyModal() {
+    const modal = document.getElementById('createStickyModal');
+    
+    if (modal) {
+        modal.style.display = 'none';
+        console.log('Sticky modal closed');
+    }
+}
+
+/**
+ * Handle sticky note creation from modal (NEW - DAY 16)
+ */
+function handleCreateSticky() {
+    const titleInput = document.getElementById('stickyTitleInput');
+    const contentInput = document.getElementById('stickyContentInput');
+    
+    if (!titleInput || !contentInput) {
+        console.error('Sticky inputs not found');
+        return;
+    }
+    
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    
+    if (content === '') {
+        alert('Please enter some content for the sticky note');
+        return;
+    }
+    
+    // Create the sticky note
+    const newSticky = createStickyNote(title, content);
+    
+    if (newSticky) {
+        renderCurrentView();
+        hideCreateStickyModal();
+        console.log('Sticky note created successfully:', newSticky.title);
+    }
+}
+
+/**
+ * Show modal to view/edit sticky note (NEW - DAY 16)
+ * @param {string} stickyId - The sticky note ID to view
+ */
+function showViewStickyModal(stickyId) {
+    // For now, just alert - we'll implement full view/edit in next step
+    const sticky = getStickyById(stickyId);
+    if (sticky) {
+        alert(`Sticky Note: ${sticky.title}\n\n${sticky.content}\n\nFull view/edit modal coming soon!`);
+    }
+}
+
 // ============================================
 // EVENT LISTENERS
 // ============================================
@@ -1500,12 +2184,50 @@ function setupEventListeners() {
         });
     }
     
-    // Sidebar sticky add button (placeholder for future)
+    // STICKY NOTE MODAL LISTENERS (NEW - DAY 16)
+        
+    // Sidebar sticky add button
     const sidebarStickyAddBtn = document.getElementById('sidebarStickyAddBtn');
     if (sidebarStickyAddBtn) {
-        sidebarStickyAddBtn.addEventListener('click', () => {
-            console.log('Sticky note creation - Coming soon!');
-            alert('Sticky note creation coming in future days!');
+        sidebarStickyAddBtn.addEventListener('click', showCreateStickyModal);
+    }
+
+    // Sticky modal close button (X)
+    const stickyModalCloseBtn = document.getElementById('stickyModalCloseBtn');
+    if (stickyModalCloseBtn) {
+        stickyModalCloseBtn.addEventListener('click', hideCreateStickyModal);
+    }
+
+    // Sticky modal cancel button
+    const stickyModalCancelBtn = document.getElementById('stickyModalCancelBtn');
+    if (stickyModalCancelBtn) {
+        stickyModalCancelBtn.addEventListener('click', hideCreateStickyModal);
+    }
+
+    // Sticky modal create button
+    const stickyModalCreateBtn = document.getElementById('stickyModalCreateBtn');
+    if (stickyModalCreateBtn) {
+        stickyModalCreateBtn.addEventListener('click', handleCreateSticky);
+    }
+
+    // Close sticky modal when clicking outside (on overlay)
+    const stickyModal = document.getElementById('createStickyModal');
+    if (stickyModal) {
+        stickyModal.addEventListener('click', (e) => {
+            if (e.target === stickyModal) {
+                hideCreateStickyModal();
+            }
+        });
+    }
+
+    // Allow Enter key in content textarea (Shift+Enter for new line)
+    const stickyContentInput = document.getElementById('stickyContentInput');
+    if (stickyContentInput) {
+        stickyContentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleCreateSticky();
+            }
         });
     }
     
@@ -1525,6 +2247,28 @@ function setupEventListeners() {
             console.log('Dark mode toggle clicked');
             alert('Dark mode coming soon!');
         });
+    }
+
+    // SEARCH LISTENERS (DAY 15)
+    
+    // Search input - real-time filtering
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearchInput);
+        
+        // Keyboard shortcut: Ctrl+F to focus search
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+    }
+    
+    // Search clear button
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', clearSearch);
     }
     
     console.log('Event listeners setup complete');
@@ -1560,36 +2304,97 @@ function formatDate(isoDate) {
 }
 
 // ============================================
-// DEBUG FUNCTIONS (for testing)
+// SEARCH FUNCTIONS (DAY 15)
 // ============================================
 
 /**
- * Clear all data (useful for testing)
+ * Perform search across folders and notes
+ * @param {string} query - The search query
+ * @returns {object} Object containing matching folders and notes
  */
-function clearAllData() {
-    localStorage.removeItem('urbrain_folders');
-    localStorage.removeItem('urbrain_sticky_notes');
-    folders = [];
-    stickyNotes = [];
+function performSearch(query) {
+    const lowerQuery = query.toLowerCase().trim();
     
-    // Reset tabs
-    tabs = [];
-    activeTabId = null;
-    tabIdCounter = 1;
+    if (lowerQuery === '') {
+        return {
+            folders: [],
+            notes: [],
+            hasResults: false
+        };
+    }
     
-    // Recreate home tab
-    createTab('home', 'Home', null);
+    // Search folders (name only)
+    const matchingFolders = folders.filter(folder => {
+        return folder.name.toLowerCase().includes(lowerQuery);
+    });
     
-    renderTabs();
-    renderCurrentView();
+    // Search notes (title and content)
+    const matchingNotes = notes.filter(note => {
+        const titleMatch = note.title.toLowerCase().includes(lowerQuery);
+        const contentMatch = note.content.toLowerCase().includes(lowerQuery);
+        return titleMatch || contentMatch;
+    });
     
-    console.log('All data cleared!');
+    console.log(`Search results for "${query}":`, {
+        folders: matchingFolders.length,
+        notes: matchingNotes.length
+    });
+    
+    return {
+        folders: matchingFolders,
+        notes: matchingNotes,
+        hasResults: matchingFolders.length > 0 || matchingNotes.length > 0
+    };
 }
 
-// Make debug functions available in console
-window.clearAllData = clearAllData;
-window.createFolder = createFolder;
-window.folders = folders;
-window.tabs = tabs;
+/**
+ * Handle search input changes
+ */
+function handleSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('searchClearBtn');
+    
+    if (!searchInput) return;
+    
+    const query = searchInput.value;
+    currentSearchQuery = query;
+    
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.style.display = query.length > 0 ? 'flex' : 'none';
+    }
+    
+    // Only search on home view
+    const activeTab = getActiveTab();
+    if (activeTab && activeTab.type === 'home') {
+        renderHomeView();
+    }
+}
 
-console.log('💡 Debug functions available: clearAllData(), createFolder(name, parentId), folders, tabs');
+/**
+ * Clear search input
+ */
+function clearSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('searchClearBtn');
+    
+    if (searchInput) {
+        searchInput.value = '';
+        currentSearchQuery = '';
+    }
+    
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+    
+    // Re-render current view
+    const activeTab = getActiveTab();
+    if (activeTab && activeTab.type === 'home') {
+        renderHomeView();
+    }
+    
+    // Refocus search input
+    if (searchInput) {
+        searchInput.focus();
+    }
+}
