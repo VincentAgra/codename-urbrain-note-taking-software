@@ -3,6 +3,63 @@
    Updated: Day 10 - Folder Item Counts & Polish
    ============================================ */
 
+/* ============================================
+   CSS VARIABLES (THEME COLORS)
+   ============================================ */
+:root {
+    /* Light theme colors (default) */
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-sidebar: #2c3e50;
+    --bg-sidebar-header: #1a252f;
+    
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --text-light: #95a5a6;
+    --text-sidebar: #ecf0f1;
+    
+    --border-color: #e0e0e0;
+    --divider-color: #34495e;
+    
+    --accent-blue: #3498db;
+    --accent-blue-hover: #2980b9;
+    --accent-red: #e74c3c;
+    --accent-red-hover: #c0392b;
+    --accent-green: #27ae60;
+    --accent-green-hover: #229954;
+    
+    --card-bg: #ffffff;
+    --card-shadow: rgba(0, 0, 0, 0.08);
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark theme colors */
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-sidebar: #0d1117;
+    --bg-sidebar-header: #000000;
+    
+    --text-primary: #e6e6e6;
+    --text-secondary: #b0b0b0;
+    --text-light: #808080;
+    --text-sidebar: #c9d1d9;
+    
+    --border-color: #3d3d3d;
+    --divider-color: #30363d;
+    
+    --accent-blue: #58a6ff;
+    --accent-blue-hover: #4493e6;
+    --accent-red: #f85149;
+    --accent-red-hover: #e03e36;
+    --accent-green: #3fb950;
+    --accent-green-hover: #2ea043;
+    
+    --card-bg: #2d2d2d;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+}
+
 /* RESET & BASE STYLES */
 * {
     margin: 0;
@@ -12,9 +69,11 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f5f5;
+    background: var(--bg-primary);
     height: 100vh;
     overflow: hidden;
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ============================================
@@ -31,11 +90,12 @@ body {
    ============================================ */
 .sidebar {
     width: 250px;
-    background: #2c3e50;
-    color: white;
+    background: var(--bg-sidebar);
+    color: var(--text-sidebar);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    transition: background-color 0.3s ease;
 }
 
 /* SIDEBAR HEADER */
@@ -45,9 +105,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #1a252f;
+    background: var(--bg-sidebar-header);
     text-align: center;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 1px solid var(--divider-color);
+    transition: background-color 0.3s ease;
 }
 
 .sidebar-header h1 {
@@ -195,14 +256,15 @@ body {
    TOP TOOLBAR
    ============================================ */
 .toolbar {
-    background: white;
+    background: var(--bg-secondary);
     padding: 15px 25px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid var(--border-color);
     display: flex;
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
     height: 72px;
+    transition: background-color 0.3s ease;
 }
 
 /* SEARCH BOX */
@@ -210,16 +272,17 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
-    background: #f5f5f5;
+    background: var(--bg-primary);
     border-radius: 10px;
     padding: 10px 15px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
 }
 
 .search-icon {
     font-size: 18px;
     margin-right: 10px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .search-box input {
@@ -228,11 +291,11 @@ body {
     outline: none;
     flex: 1;
     font-size: 14px;
-    color: #2c3e50;
+    color: var(--text-primary);
 }
 
 .search-box input::placeholder {
-    color: #95a5a6;
+    color: var(--text-light);
 }
 
 /* SEARCH CLEAR BUTTON (Day 15) */
@@ -286,14 +349,15 @@ body {
    TAB BAR (NEW FOR DAY 4)
    ============================================ */
 .tab-bar {
-    background: white;
-    border-bottom: 2px solid #e0e0e0;
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-color);
     display: flex;
     align-items: center;
     padding: 0 15px;
     height: 50px;
     flex-shrink: 0;
     gap: 10px;
+    transition: background-color 0.3s ease;
 }
 
 /* TABS CONTAINER */
@@ -310,7 +374,7 @@ body {
 }
 
 .tabs-container::-webkit-scrollbar-thumb {
-    background: #bdc3c7;
+    background: var(--text-light);
     border-radius: 2px;
 }
 
@@ -320,7 +384,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 10px 16px;
-    background: #ecf0f1;
+    background: var(--border-color);
     border: none;
     border-radius: 8px 8px 0 0;
     cursor: move;
@@ -328,18 +392,18 @@ body {
     min-width: 120px;
     max-width: 200px;
     font-size: 14px;
-    color: #2c3e50;
+    color: var(--text-primary);
     transition: all 0.2s;
     position: relative;
 }
 
 .tab:hover {
-    background: #d5dbdb;
+    background: var(--text-light);
 }
 
 .tab.active {
-    background: white;
-    color: #2c3e50;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -358,7 +422,7 @@ body {
 .tab-close-btn {
     background: none;
     border: none;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     font-size: 20px;
     cursor: pointer;
     padding: 0;
@@ -373,15 +437,15 @@ body {
 }
 
 .tab-close-btn:hover {
-    background: #e74c3c;
+    background: var(--accent-red);
     color: white;
 }
 
 /* TAB ADD BUTTON */
 .tab-add-btn {
-    background: #ecf0f1;
-    border: 1px solid #e0e0e0;
-    color: #2c3e50;
+    background: var(--border-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     width: 32px;
     height: 32px;
     border-radius: 6px;
@@ -396,8 +460,8 @@ body {
 }
 
 .tab-add-btn:hover {
-    background: #3498db;
-    border-color: #3498db;
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
     color: white;
     transform: scale(1.05);
 }
@@ -419,9 +483,9 @@ body {
 /* NAVIGATION BUTTONS (BACK/FORWARD) */
 .nav-btn,
 .nav-btn-tabbar {
-    background: white;
-    border: 1px solid #e0e0e0;
-    color: #2c3e50;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     width: 36px;
     height: 36px;
     border-radius: 6px;
@@ -436,8 +500,8 @@ body {
 
 .nav-btn:hover:not(:disabled),
 .nav-btn-tabbar:hover:not(:disabled) {
-    background: #3498db;
-    border-color: #3498db;
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
     color: white;
     transform: scale(1.05);
 }
@@ -461,7 +525,8 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 30px;
-    background: #f5f5f5;
+    background: var(--bg-primary);
+    transition: background-color 0.3s ease;
 }
 
 /* ============================================
@@ -481,12 +546,12 @@ body {
 
 .section-header h2 {
     font-size: 24px;
-    color: #2c3e50;
+    color: var(--text-primary);
     font-weight: 700;
 }
 
 .section-header p {
-    color: #7f8c8d;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -494,7 +559,7 @@ body {
 .section-divider {
     border: none;
     height: 2px;
-    background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
     margin: 40px 0;
 }
 
@@ -504,7 +569,7 @@ body {
 .empty-message {
     text-align: center;
     padding: 60px 20px;
-    color: #95a5a6;
+    color: var(--text-light);
 }
 
 .empty-icon {
@@ -517,12 +582,12 @@ body {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .empty-message p {
     font-size: 14px;
-    color: #95a5a6;
+    color: var(--text-light);
 }
 
 /* ============================================
@@ -538,10 +603,10 @@ body {
    CARDS (FOLDERS & STICKY NOTES)
    ============================================ */
 .card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px var(--card-shadow);
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
@@ -569,7 +634,7 @@ body {
 .card-title {
     font-size: 16px;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--text-primary);
     text-align: center;
     word-wrap: break-word;
     min-height: 20px;
@@ -586,7 +651,7 @@ body {
 
 .card-meta {
     font-size: 11px;
-    color: #95a5a6;
+    color: var(--text-light);
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -635,7 +700,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--modal-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -644,13 +709,14 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 16px;
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px var(--card-shadow);
     overflow: hidden;
     animation: modalSlideIn 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 @keyframes modalSlideIn {
@@ -667,7 +733,7 @@ body {
 /* MODAL HEADER */
 .modal-header {
     padding: 25px 30px;
-    border-bottom: 2px solid #f5f5f5;
+    border-bottom: 2px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -675,14 +741,14 @@ body {
 
 .modal-header h2 {
     font-size: 22px;
-    color: #2c3e50;
+    color: var(--text-primary);
     font-weight: 700;
 }
 
 .modal-close-btn {
     background: none;
     border: none;
-    color: #95a5a6;
+    color: var(--text-light);
     font-size: 32px;
     cursor: pointer;
     width: 32px;
@@ -697,8 +763,8 @@ body {
 }
 
 .modal-close-btn:hover {
-    background: #ecf0f1;
-    color: #2c3e50;
+    background: var(--border-color);
+    color: var(--text-primary);
     transform: rotate(90deg);
 }
 
@@ -710,7 +776,7 @@ body {
 .modal-body label {
     display: block;
     font-size: 14px;
-    color: #2c3e50;
+    color: var(--text-primary);
     font-weight: 600;
     margin-bottom: 10px;
 }
@@ -718,28 +784,29 @@ body {
 .modal-body input[type="text"] {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 15px;
-    color: #2c3e50;
+    color: var(--text-primary);
+    background: var(--bg-primary);
     transition: all 0.2s ease;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .modal-body input[type="text"]:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--accent-blue);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .modal-body input[type="text"]::placeholder {
-    color: #bdc3c7;
+    color: var(--text-light);
 }
 
 /* MODAL FOOTER */
 .modal-footer {
     padding: 20px 30px;
-    border-top: 2px solid #f5f5f5;
+    border-top: 2px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
     gap: 12px;
@@ -759,23 +826,23 @@ body {
 
 /* CANCEL BUTTON */
 .modal-btn-cancel {
-    background: #ecf0f1;
-    color: #2c3e50;
+    background: var(--border-color);
+    color: var(--text-primary);
 }
 
 .modal-btn-cancel:hover {
-    background: #bdc3c7;
+    background: var(--text-light);
     transform: translateY(-2px);
 }
 
 /* CREATE BUTTON */
 .modal-btn-create {
-    background: #3498db;
+    background: var(--accent-blue);
     color: white;
 }
 
 .modal-btn-create:hover {
-    background: #2980b9;
+    background: var(--accent-blue-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
@@ -792,16 +859,16 @@ body {
 }
 
 .content-area::-webkit-scrollbar-track {
-    background: #ecf0f1;
+    background: var(--border-color);
 }
 
 .content-area::-webkit-scrollbar-thumb {
-    background: #bdc3c7;
+    background: var(--text-light);
     border-radius: 5px;
 }
 
 .content-area::-webkit-scrollbar-thumb:hover {
-    background: #95a5a6;
+    background: var(--text-secondary);
 }
 
 /* ============================================
@@ -851,15 +918,16 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     padding: 30px;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px var(--card-shadow);
+    transition: background-color 0.3s ease;
 }
 
 .folder-view-title h1 {
     font-size: 32px;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -867,7 +935,7 @@ body {
 }
 
 .folder-meta {
-    color: #7f8c8d;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -881,7 +949,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: #3498db;
+    background: var(--accent-blue);
     color: white;
     border: none;
     border-radius: 8px;
@@ -892,7 +960,7 @@ body {
 }
 
 .folder-action-btn:hover {
-    background: #2980b9;
+    background: var(--accent-blue-hover);
     transform: translateY(-1px);
 }
 
@@ -902,20 +970,21 @@ body {
 
 /* NOTES AREA (Top section, vertical scroll) */
 .folder-notes-area {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 25px;
     margin-bottom: 20px;
     min-height: 300px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px var(--card-shadow);
+    transition: background-color 0.3s ease;
 }
 
 .folder-notes-area h3 {
     font-size: 18px;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .notes-grid {
@@ -926,18 +995,19 @@ body {
 
 /* SUBFOLDERS AREA (Bottom section, horizontal scroll) */
 .folder-subfolders-area {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px var(--card-shadow);
+    transition: background-color 0.3s ease;
 }
 
 .folder-subfolders-area h3 {
     font-size: 18px;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .subfolders-scroll-container {
@@ -957,17 +1027,17 @@ body {
 }
 
 .subfolders-horizontal-grid::-webkit-scrollbar-track {
-    background: #ecf0f1;
+    background: var(--border-color);
     border-radius: 4px;
 }
 
 .subfolders-horizontal-grid::-webkit-scrollbar-thumb {
-    background: #bdc3c7;
+    background: var(--text-light);
     border-radius: 4px;
 }
 
 .subfolders-horizontal-grid::-webkit-scrollbar-thumb:hover {
-    background: #95a5a6;
+    background: var(--text-secondary);
 }
 
 .subfolders-horizontal-grid .card {
@@ -976,7 +1046,7 @@ body {
 }
 
 .empty-message-inline {
-    color: #95a5a6;
+    color: var(--text-light);
     font-size: 14px;
     padding: 30px;
     text-align: center;
@@ -1014,30 +1084,30 @@ body {
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     flex-wrap: wrap;
 }
 
 .breadcrumb-link {
-    color: #3498db;
+    color: var(--accent-blue);
     cursor: pointer;
     transition: all 0.2s;
     font-weight: 500;
 }
 
 .breadcrumb-link:hover {
-    color: #2980b9;
+    color: var(--accent-blue-hover);
     text-decoration: underline;
 }
 
 .breadcrumb-separator {
-    color: #bdc3c7;
+    color: var(--text-light);
     margin: 0 4px;
     user-select: none;
 }
 
 .breadcrumb-current {
-    color: #2c3e50;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -1060,7 +1130,7 @@ body {
 /* Note content preview */
 .note-preview {
     font-size: 13px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     line-height: 1.5;
     margin: 8px 0;
     display: -webkit-box;
@@ -1082,15 +1152,16 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     padding: 30px;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px var(--card-shadow);
+    transition: background-color 0.3s ease;
 }
 
 .note-view-title h1 {
     font-size: 32px;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -1101,7 +1172,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     font-size: 14px;
     flex-wrap: wrap;
 }
@@ -1123,7 +1194,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: #3498db;
+    background: var(--accent-blue);
     color: white;
     border: none;
     border-radius: 8px;
@@ -1134,22 +1205,22 @@ body {
 }
 
 .note-action-btn:hover:not(:disabled) {
-    background: #2980b9;
+    background: var(--accent-blue-hover);
     transform: translateY(-1px);
 }
 
 .note-action-btn:disabled {
-    background: #bdc3c7;
+    background: var(--text-light);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
 .note-action-btn-danger {
-    background: #e74c3c;
+    background: var(--accent-red);
 }
 
 .note-action-btn-danger:hover:not(:disabled) {
-    background: #c0392b;
+    background: var(--accent-red-hover);
 }
 
 .note-action-btn span {
@@ -1158,17 +1229,18 @@ body {
 
 /* Note content area */
 .note-view-content {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 30px;
     min-height: 400px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px var(--card-shadow);
+    transition: background-color 0.3s ease;
 }
 
 .note-content-text {
     font-size: 16px;
     line-height: 1.8;
-    color: #2c3e50;
+    color: var(--text-primary);
     white-space: pre-wrap;
     word-wrap: break-word;
 }
@@ -1177,7 +1249,7 @@ body {
 .note-empty-content {
     text-align: center;
     padding: 80px 20px;
-    color: #95a5a6;
+    color: var(--text-light);
 }
 
 .note-empty-content p {
@@ -1187,7 +1259,7 @@ body {
 
 .note-empty-hint {
     font-size: 14px;
-    color: #bdc3c7;
+    color: var(--text-light);
     font-style: italic;
 }
 
@@ -1200,11 +1272,12 @@ body {
     width: 100%;
     min-height: 400px;
     padding: 20px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 16px;
     line-height: 1.8;
-    color: #2c3e50;
+    color: var(--text-primary);
+    background: var(--bg-primary);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     resize: vertical;
     transition: all 0.2s;
@@ -1212,21 +1285,21 @@ body {
 
 .note-edit-textarea:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--accent-blue);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .note-edit-textarea::placeholder {
-    color: #bdc3c7;
+    color: var(--text-light);
 }
 
 /* Success button (green Save button) */
 .note-action-btn-success {
-    background: #27ae60;
+    background: var(--accent-green);
 }
 
 .note-action-btn-success:hover:not(:disabled) {
-    background: #229954;
+    background: var(--accent-green-hover);
 }
 
 /* ============================================
@@ -1396,10 +1469,10 @@ body {
 
 .settings-tab-content h3 {
     font-size: 20px;
-    color: #2c3e50;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
+    color: var(--text-primary);
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
 }
 
 /* Settings Groups */
@@ -1407,11 +1480,11 @@ body {
     margin-bottom: 25px;
 }
 
-.settings-group > label {
+.settings-group label {
     display: block;
     font-size: 14px;
-    color: #2c3e50;
     font-weight: 600;
+    color: var(--text-primary);
     margin-bottom: 8px;
 }
 
@@ -1419,19 +1492,20 @@ body {
 .settings-group input[type="text"],
 .settings-group select {
     width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    padding: 10px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
     font-size: 14px;
-    color: #2c3e50;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    font-family: 'Segoe UI', sans-serif;
     transition: all 0.2s;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .settings-group input[type="text"]:focus,
 .settings-group select:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--accent-blue);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
@@ -1454,10 +1528,9 @@ body {
 /* Settings Hints */
 .settings-hint {
     font-size: 12px;
-    color: #7f8c8d;
-    margin-top: 5px;
+    color: var(--text-secondary);
+    margin-top: 6px;
     font-style: italic;
-    line-height: 1.4;
 }
 
 /* About Section Styling */
@@ -1465,13 +1538,11 @@ body {
     text-align: center;
     padding: 20px 0;
 }
-
 .about-logo {
     font-size: 64px;
     margin-bottom: 15px;
     animation: pulse 2s infinite;
 }
-
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
@@ -1480,18 +1551,16 @@ body {
         transform: scale(1.05);
     }
 }
-
 .about-title {
     font-size: 32px;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 10px;
     font-weight: 700;
     letter-spacing: 2px;
 }
-
 .about-version {
     display: inline-block;
-    background: #3498db;
+    background: var(--accent-blue);
     color: white;
     padding: 6px 16px;
     border-radius: 20px;
@@ -1499,31 +1568,28 @@ body {
     font-weight: 600;
     margin-bottom: 20px;
 }
-
 .about-info {
-    color: #7f8c8d;
+    color: var(--text-secondary);
     line-height: 1.8;
     margin-bottom: 15px;
     font-size: 14px;
 }
-
 .about-info strong {
-    color: #2c3e50;
+    color: var(--text-primary);
     display: block;
     margin-bottom: 5px;
 }
-
 .about-credits {
-    background: #f8f9fa;
+    background: var(--bg-primary);
     padding: 20px;
     border-radius: 8px;
     margin-top: 25px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
 }
-
 .about-credits p {
     margin: 8px 0;
-    color: #2c3e50;
+    color: var(--text-primary);
     font-size: 14px;
 }
 

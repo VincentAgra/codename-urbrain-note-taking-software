@@ -13,6 +13,9 @@ let stickyNotes = [];
 
 let currentSearchQuery = ''; // Search state (Day 15)
 
+// Theme state (Day 18)
+let currentTheme = 'light'; // 'light' or 'dark'
+
 // Tab system
 let tabs = [];
 let activeTabId = null;
@@ -872,10 +875,12 @@ function handleDeleteNote(noteId) {
         return;
     }
     
-    // Confirm deletion
-    const confirmMsg = `Delete note "${note.title}"?\n\nThis action cannot be undone!`;
-    if (!confirm(confirmMsg)) {
-        return;
+    // Confirm deletion (if setting is enabled)
+    if (currentSettings.confirmDelete) {
+        const confirmMsg = `Delete note "${note.title}"?\n\nThis action cannot be undone!`;
+        if (!confirm(confirmMsg)) {
+            return;
+        }
     }
     
     // Find the note index
@@ -1056,24 +1061,28 @@ function handleDeleteFolder(folderId) {
         confirmMessage += '\n\nThis action cannot be undone!';
     }
     
-    // Show confirmation dialog
-    if (confirm(confirmMessage)) {
-        // Close any tabs showing this folder or its descendants
-        const idsToClose = [folderId, ...getAllDescendantFolderIds(folderId)];
-        const tabsToClose = tabs.filter(t => t.type === 'folder' && idsToClose.includes(t.referenceId));
-        
-        tabsToClose.forEach(tab => {
-            closeTab(tab.id);
-        });
-        
-        // Delete the folder recursively
-        deleteFolderRecursive(folderId);
-        
-        // Re-render current view
-        renderCurrentView();
-        
-        console.log('Folder deleted successfully');
+    // Show confirmation dialog (if setting is enabled)
+    if (currentSettings.confirmDelete) {
+        if (!confirm(confirmMessage)) {
+            return;
+        }
     }
+
+    // Close any tabs showing this folder or its descendants
+    const idsToClose = [folderId, ...getAllDescendantFolderIds(folderId)];
+    const tabsToClose = tabs.filter(t => t.type === 'folder' && idsToClose.includes(t.referenceId));
+
+    tabsToClose.forEach(tab => {
+        closeTab(tab.id);
+    });
+
+    // Delete the folder recursively
+    deleteFolderRecursive(folderId);
+
+    // Re-render current view
+    renderCurrentView();
+
+    console.log('Folder deleted successfully');
 }
 
 /**
@@ -1430,11 +1439,15 @@ function handleDeleteSticky(stickyId) {
         return;
     }
     
-    // Confirm deletion
-    const confirmMsg = `Delete sticky note "${sticky.title}"?\n\nThis action cannot be undone!`;
-    if (!confirm(confirmMsg)) {
-        return;
+
+    // Confirm deletion (if setting is enabled)
+    if (currentSettings.confirmDelete) {
+        const confirmMsg = `Delete sticky note "${sticky.title}"?\n\nThis action cannot be undone!`;
+        if (!confirm(confirmMsg)) {
+            return;
+        }
     }
+
     
     // Find the sticky index
     const stickyIndex = stickyNotes.findIndex(s => s.id === stickyId);
@@ -1478,19 +1491,30 @@ let currentSettings = { ...defaultSettings };
  * Load settings from localStorage
  */
 function loadSettings() {
-    const saved = localStorage.getItem('urbrain_settings');
-    if (saved) {
+    // Load settings from localStorage
+    const savedSettings = localStorage.getItem('urbrain_settings');
+    
+    if (savedSettings) {
         try {
-            currentSettings = { ...defaultSettings, ...JSON.parse(saved) };
+            const settings = JSON.parse(savedSettings);
+            currentSettings = { ...currentSettings, ...settings };
             console.log('Settings loaded:', currentSettings);
         } catch (e) {
-            console.error('Error loading settings:', e);
-            currentSettings = { ...defaultSettings };
+            console.error('Error parsing settings:', e);
         }
+    }
+    
+    // Load theme preference (NEW - Day 18)
+    const savedTheme = localStorage.getItem('urbrain_theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+        currentTheme = savedTheme;
     }
     
     // Apply settings to UI
     applySettings();
+    
+    // Apply theme (NEW - Day 18)
+    applyTheme();
 }
 
 /**
@@ -1524,6 +1548,64 @@ function applySettings() {
         document.body.classList.add('no-animations');
     } else {
         document.body.classList.remove('no-animations');
+    }
+}
+
+// ============================================
+// THEME FUNCTIONS (NEW - DAY 18)
+// ============================================
+
+/**
+ * Apply the current theme to the document
+ */
+function applyTheme() {
+    const html = document.documentElement;
+    
+    if (currentTheme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+    } else {
+        html.removeAttribute('data-theme');
+    }
+    
+    // Update the dark mode button icon
+    updateThemeButton();
+    
+    console.log('Theme applied:', currentTheme);
+}
+
+/**
+ * Toggle between light and dark theme
+ */
+function toggleTheme() {
+    // Switch theme
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    // Apply the theme
+    applyTheme();
+    
+    // Save to localStorage
+    localStorage.setItem('urbrain_theme', currentTheme);
+    
+    console.log('Theme toggled to:', currentTheme);
+}
+
+/**
+ * Update the theme button icon
+ */
+function updateThemeButton() {
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    if (!darkModeBtn) return;
+    
+    const icon = darkModeBtn.querySelector('span');
+    if (!icon) return;
+    
+    // Update icon: 🌙 for light mode (click to go dark), ☀️ for dark mode (click to go light)
+    if (currentTheme === 'light') {
+        icon.textContent = '🌙';
+        darkModeBtn.title = 'Switch to Dark Mode';
+    } else {
+        icon.textContent = '☀️';
+        darkModeBtn.title = 'Switch to Light Mode';
     }
 }
 
@@ -2231,21 +2313,69 @@ function setupEventListeners() {
         });
     }
     
-    // Settings button (placeholder)
+    // Settings button (NEW - Day 17)
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-            console.log('Settings clicked');
-            alert('Settings coming soon!');
+        settingsBtn.addEventListener('click', showSettingsModal);
+    }
+
+    // Settings modal close button (X)
+    const settingsModalCloseBtn = document.getElementById('settingsModalCloseBtn');
+    if (settingsModalCloseBtn) {
+        settingsModalCloseBtn.addEventListener('click', hideSettingsModal);
+    }
+
+    // Close settings modal when clicking outside (on overlay)
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                hideSettingsModal();
+            }
         });
     }
-    
-    // Dark mode button (placeholder)
+
+    // Settings tab switching
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            switchSettingsTab(tabName);
+        });
+    });
+
+    // App name input - save on blur and enter
+    const appNameInput = document.getElementById('appNameSetting');
+    if (appNameInput) {
+        appNameInput.addEventListener('blur', saveSettingsFromForm);
+        appNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                appNameInput.blur();
+            }
+        });
+    }
+
+    // Auto-save other settings on change
+    const confirmDeleteInput = document.getElementById('confirmDeleteSetting');
+    if (confirmDeleteInput) {
+        confirmDeleteInput.addEventListener('change', saveSettingsFromForm);
+    }
+
+    const fontSizeInput = document.getElementById('fontSizeSetting');
+    if (fontSizeInput) {
+        fontSizeInput.addEventListener('change', saveSettingsFromForm);
+    }
+
+    const animationsInput = document.getElementById('animationsSetting');
+    if (animationsInput) {
+        animationsInput.addEventListener('change', saveSettingsFromForm);
+    }
+
+    // Dark mode button (NEW - Day 18)
     const darkModeBtn = document.getElementById('darkModeBtn');
     if (darkModeBtn) {
         darkModeBtn.addEventListener('click', () => {
             console.log('Dark mode toggle clicked');
-            alert('Dark mode coming soon!');
+            toggleTheme();
         });
     }
 
